@@ -2,7 +2,10 @@ package dev.rollczi.litecommands;
 
 import dev.rollczi.litecommands.argument.ArgumentKey;
 import dev.rollczi.litecommands.argument.parser.Parser;
+import dev.rollczi.litecommands.argument.parser.ParserChained;
 import dev.rollczi.litecommands.argument.resolver.ArgumentResolverBase;
+import dev.rollczi.litecommands.argument.suggester.SuggesterChained;
+import dev.rollczi.litecommands.bind.BindChainedProvider;
 import dev.rollczi.litecommands.bind.BindProvider;
 import dev.rollczi.litecommands.configurator.LiteConfigurator;
 import dev.rollczi.litecommands.context.ContextChainedProvider;
@@ -92,11 +95,23 @@ public interface LiteCommandsBuilder<SENDER, SETTINGS extends PlatformSettings, 
     <T>
     B argumentParser(Class<T> type, Parser<SENDER, T> parser);
 
+    @ApiStatus.Experimental
+    <T>
+    B argumentParser(Class<T> type, ParserChained<SENDER, T> parser);
+
     <T>
     B argumentParser(Class<T> type, ArgumentKey key, Parser<SENDER, T> parser);
 
+    @ApiStatus.Experimental
+    <T>
+    B argumentParser(Class<T> type, ArgumentKey key, ParserChained<SENDER, T> parser);
+
     <T>
     B argumentParser(TypeRange<T> type, ArgumentKey key, Parser<SENDER, T> parser);
+
+    @ApiStatus.Experimental
+    <T>
+    B argumentParser(TypeRange<T> type, ArgumentKey key, ParserChained<SENDER, T> parser);
 
     <T>
     B argumentSuggestion(Class<T> type, SuggestionResult suggestion);
@@ -124,11 +139,23 @@ public interface LiteCommandsBuilder<SENDER, SETTINGS extends PlatformSettings, 
     <T>
     B argumentSuggester(Class<T> type, Suggester<SENDER, T> suggester);
 
+    @ApiStatus.Experimental
+    <T>
+    B argumentSuggester(Class<T> type, SuggesterChained<SENDER, T> suggester);
+
     <T>
     B argumentSuggester(Class<T> type, ArgumentKey key, Suggester<SENDER, T> suggester);
 
+    @ApiStatus.Experimental
+    <T>
+    B argumentSuggester(Class<T> type, ArgumentKey key, SuggesterChained<SENDER, T> suggester);
+
     <T>
     B argumentSuggester(TypeRange<T> type, ArgumentKey key, Suggester<SENDER, T> suggester);
+
+    @ApiStatus.Experimental
+    <T>
+    B argumentSuggester(TypeRange<T> type, ArgumentKey key, SuggesterChained<SENDER, T> suggester);
 
     /**
      * [Argument Parser and Suggester]
@@ -147,8 +174,8 @@ public interface LiteCommandsBuilder<SENDER, SETTINGS extends PlatformSettings, 
      * Key is used to define namespace for given parser. It is used to identify which parsers with same type should be used.
      * Argument type is used to define what type is compatible with given parser.
      *
-     * @param type type of argument
-     * @param key key of argument
+     * @param type     type of argument
+     * @param key      key of argument
      * @param resolver parser and suggester for a given type
      * @return this builder
      */
@@ -161,15 +188,21 @@ public interface LiteCommandsBuilder<SENDER, SETTINGS extends PlatformSettings, 
     <T>
     B argument(TypeRange<T> type, ArgumentKey key, ArgumentResolverBase<SENDER, T> resolver);
 
-    <T>
-    B context(Class<T> on, ContextProvider<SENDER, T> bind);
+    default <T> B context(Class<T> on, ContextProvider<SENDER, T> bind) {
+        return context(on, (ContextChainedProvider<SENDER, T>) bind);
+    }
 
     @ApiStatus.Experimental
     <T>
     B context(Class<T> on, ContextChainedProvider<SENDER, T> bind);
 
+    default <T> B bind(Class<T> on, BindProvider<T> bindProvider) {
+        return bind(on, (BindChainedProvider<T>) bindProvider);
+    }
+
+    @ApiStatus.Experimental
     <T>
-    B bind(Class<T> on, BindProvider<T> bindProvider);
+    B bind(Class<T> on, BindChainedProvider<T> bindProvider);
 
     <T>
     B bind(Class<T> on, Supplier<T> bind);

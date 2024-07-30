@@ -1,7 +1,10 @@
 package dev.rollczi.litecommands.argument.parser;
 
+import dev.rollczi.litecommands.context.ContextResult;
 import dev.rollczi.litecommands.requirement.RequirementResult;
 import dev.rollczi.litecommands.shared.FailedReason;
+import java.util.function.Function;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,6 +63,24 @@ public class ParseResult<EXPECTED> implements RequirementResult<EXPECTED> {
         }
 
         return this.failedResult.getReason();
+    }
+
+    @ApiStatus.Experimental
+    public <R> ParseResult<R> map(Function<EXPECTED, R> mapper) {
+        if (this.isFailed()) {
+            return ParseResult.failure(failedResult);
+        }
+
+        return ParseResult.success(mapper.apply(getSuccess()));
+    }
+
+    @ApiStatus.Experimental
+    public <R> ParseResult<R> flatMap(Function<EXPECTED, ParseResult<R>> mapper) {
+        if (this.isFailed()) {
+            return ParseResult.failure(failedResult);
+        }
+
+        return mapper.apply(getSuccess());
     }
 
     public static <PARSED> ParseResult<PARSED> success(PARSED parsed) {

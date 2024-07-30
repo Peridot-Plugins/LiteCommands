@@ -3,6 +3,8 @@ package dev.rollczi.litecommands.input.raw;
 import dev.rollczi.litecommands.argument.Argument;
 import dev.rollczi.litecommands.argument.parser.ParseResult;
 import dev.rollczi.litecommands.argument.parser.Parser;
+import dev.rollczi.litecommands.argument.parser.ParserChainAccessor;
+import dev.rollczi.litecommands.argument.parser.ParserChained;
 import dev.rollczi.litecommands.argument.parser.ParserSet;
 import dev.rollczi.litecommands.invocation.Invocation;
 import dev.rollczi.litecommands.range.Range;
@@ -38,9 +40,9 @@ public class RawInputAnalyzer {
     public <SENDER, T> Context<SENDER, T> toContext(
         Invocation<SENDER> invocation,
         Argument<T> argument,
-        ParserSet<SENDER, T> parserSet
+        Parser<SENDER, T> parser
     ) {
-        return new Context<>(invocation, argument, parserSet);
+        return new Context<>(invocation, argument, parser);
     }
 
     public String showNextRoute() {
@@ -59,9 +61,8 @@ public class RawInputAnalyzer {
         return pivotPosition == rawArguments.size() - 1;
     }
 
-    public <SENDER, T> boolean isNextOptional(ParserSet<SENDER, T> parserSet, Invocation<SENDER> invocation, Argument<T> argument) {
-        Parser<SENDER, T> validParser = parserSet.getValidParserOrThrow(null, argument);
-        Range range = validParser.getRange(argument);
+    public <SENDER, T> boolean isNextOptional(Parser<SENDER, T> parser, Invocation<SENDER> invocation, Argument<T> argument) {
+        Range range = parser.getRange(argument);
 
         return range.getMin() == 0;
     }
@@ -78,10 +79,10 @@ public class RawInputAnalyzer {
         public Context(
             Invocation<SENDER> invocation,
             Argument<T> argument,
-            ParserSet<SENDER, T> parserSet
+            Parser<SENDER, T> parser
         ) {
             this.argument = argument;
-            this.parser = parserSet.getValidParserOrThrow(invocation, argument);
+            this.parser = parser;
             Range range = parser.getRange(argument);
 
             this.argumentMinCount = range.getMin() + pivotPosition;
