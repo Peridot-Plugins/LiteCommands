@@ -5,6 +5,8 @@ import dev.rollczi.litecommands.annotations.LiteTestSpec;
 import dev.rollczi.litecommands.annotations.argument.Arg;
 import dev.rollczi.litecommands.annotations.command.Command;
 import dev.rollczi.litecommands.annotations.execute.Execute;
+import dev.rollczi.litecommands.annotations.test.LiteTestGuild;
+import dev.rollczi.litecommands.annotations.test.LiteTestUser;
 import dev.rollczi.litecommands.argument.Argument;
 import dev.rollczi.litecommands.argument.parser.ParseResult;
 import dev.rollczi.litecommands.argument.parser.Parser;
@@ -22,67 +24,30 @@ import org.junit.jupiter.api.Test;
 class ParserTest extends LiteTestSpec {
 
     static LiteConfig config = builder -> builder
-        .argumentParser(User.class, new UserParser<>())
-        .argumentParser(Guild.class, new GuildParser<>());
+        .argumentParser(LiteTestUser.class, new UserParser<>())
+        .argumentParser(LiteTestGuild.class, new GuildParser<>());
 
-    static Map<String, User> USERS = new ConcurrentHashMap<>();
+    static Map<String, LiteTestUser> USERS = new ConcurrentHashMap<>();
 
-    static class User {
-
-        private final String name;
-        private Guild guild;
-
-        User(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return this.name;
-        }
-
-        public @Nullable Guild getGuild() {
-            return this.guild;
-        }
-
-        public void setGuild(Guild guild) {
-            this.guild = guild;
-        }
-
-    }
-
-    static class Guild {
-
-        private final String name;
-
-        Guild(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return this.name;
-        }
-
-    }
-
-    static class UserParser<S> implements Parser<S, User> {
+    static class UserParser<S> implements Parser<S, LiteTestUser> {
 
         @Override
-        public ParseResult<User> parse(Invocation<S> invocation, Argument<User> argument, RawInput input) {
-            return ParseResult.success(USERS.computeIfAbsent(input.next(), name -> new User(name)));
+        public ParseResult<LiteTestUser> parse(Invocation<S> invocation, Argument<LiteTestUser> argument, RawInput input) {
+            return ParseResult.success(USERS.computeIfAbsent(input.next(), name -> new LiteTestUser(name)));
         }
 
         @Override
-        public Range getRange(Argument<User> userArgument) {
+        public Range getRange(Argument<LiteTestUser> userArgument) {
             return Range.ONE;
         }
 
     }
 
-    static class GuildParser<S> implements ParserChained<S, Guild> {
+    static class GuildParser<S> implements ParserChained<S, LiteTestGuild> {
 
         @Override
-        public ParseResult<Guild> parse(Invocation<S> invocation, Argument<Guild> argument, RawInput input, ParserChainAccessor<S> chainAccessor) {
-            return chainAccessor.parse(invocation, Argument.of(argument, User.class), input)
+        public ParseResult<LiteTestGuild> parse(Invocation<S> invocation, Argument<LiteTestGuild> argument, RawInput input, ParserChainAccessor<S> chainAccessor) {
+            return chainAccessor.parse(invocation, Argument.of(argument, LiteTestUser.class), input)
                 .flatMap(user -> user.getGuild() == null
                     ? ParseResult.failure("User is not in a guild")
                     : ParseResult.success(user.getGuild())
@@ -90,7 +55,7 @@ class ParserTest extends LiteTestSpec {
         }
 
         @Override
-        public Range getRange(Argument<Guild> guildArgument) {
+        public Range getRange(Argument<LiteTestGuild> guildArgument) {
             return Range.ONE;
         }
 
@@ -100,15 +65,14 @@ class ParserTest extends LiteTestSpec {
     static class TestCommand {
 
         @Execute(name = "user")
-        void execute(@Arg("user") User user) {}
+        void execute(@Arg("user") LiteTestUser user) {}
 
         @Execute(name = "guild get")
-        void execute(@Arg Guild guild) {}
+        void execute(@Arg LiteTestGuild guild) {}
 
         @Execute(name = "guild set")
-        void execute(@Arg User user, @Arg String guildName) {
-            user.setGuild(new Guild(guildName));
-            USERS.put(user.getName(), user);
+        void execute(@Arg LiteTestUser user, @Arg String guildName) {
+            user.setGuild(guildName);
         }
 
     }
