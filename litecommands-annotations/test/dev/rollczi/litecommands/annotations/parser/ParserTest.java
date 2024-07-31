@@ -68,7 +68,7 @@ class ParserTest extends LiteTestSpec {
 
         @Override
         public ParseResult<User> parse(Invocation<S> invocation, Argument<User> argument, RawInput input) {
-            return ParseResult.success(USERS.computeIfAbsent(invocation.name(), name -> new User(name)));
+            return ParseResult.success(USERS.computeIfAbsent(input.next(), name -> new User(name)));
         }
 
         @Override
@@ -111,15 +111,25 @@ class ParserTest extends LiteTestSpec {
             USERS.put(user.getName(), user);
         }
 
-        @Execute(name = "failed")
-        void execute(@Arg Integer integer) {}
-
     }
 
     @Test
-    @DisplayName("Should provide user context")
-    void testUserContext() {
-        platform.execute("command user \"test-user\"")
+    @DisplayName("Should parse user")
+    void testUserParser() {
+        platform.execute("command user test-user")
+            .assertSuccess();
+    }
+
+    @Test
+    @DisplayName("Should parse guild")
+    void testGuildParser() {
+        platform.execute("command guild get test-user")
+            .assertFailure();
+
+        platform.execute("command guild set test-user test-guild")
+            .assertSuccess();
+
+        platform.execute("command guild get test-user")
             .assertSuccess();
     }
 
