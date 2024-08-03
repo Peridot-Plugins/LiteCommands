@@ -16,12 +16,21 @@ publishing {
         mavenLocal()
 
         maven(
-            name = "titanvale",
+            name = "titanvale-releases",
             url = "https://repo.titanvale.net",
             username = "MAVEN_USERNAME",
             password = "MAVEN_PASSWORD",
             snapshots = false,
             beta = false,
+        )
+
+        maven(
+            name = "titanvale-snapshots",
+            url = "https://repo.titanvale.net",
+            username = "MAVEN_USERNAME",
+            password = "MAVEN_PASSWORD",
+            snapshots = true,
+            beta = true,
         )
     }
 }
