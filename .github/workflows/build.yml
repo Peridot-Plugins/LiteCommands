@@ -2,9 +2,9 @@ name: LiteCommands CI Build
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master-custom ]
   pull_request:
-    branches: [ master ]
+    branches: [ master-custom ]
 jobs:
   build:
     name: "Build with JDK${{ matrix.jdk }}"

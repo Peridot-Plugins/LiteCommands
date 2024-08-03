@@ -16,30 +16,12 @@ publishing {
         mavenLocal()
 
         maven(
-            name = "panda",
-            url = "https://repo.panda-lang.org",
+            name = "titanvale",
+            url = "https://repo.titanvale.net",
             username = "MAVEN_USERNAME",
             password = "MAVEN_PASSWORD",
             snapshots = false,
             beta = false,
-        )
-
-        maven(
-            name = "eternalcode",
-            url = "https://repo.eternalcode.pl",
-            username = "ETERNAL_CODE_MAVEN_USERNAME",
-            password = "ETERNAL_CODE_MAVEN_PASSWORD",
-            snapshots = true,
-            beta = true,
-        )
-
-        maven(
-            name ="minecodes",
-            url = "https://repository.minecodes.pl",
-            username = "MINE_CODES_MAVEN_USERNAME",
-            password = "MINE_CODES_MAVEN_PASSWORD",
-            snapshots = true,
-            beta = true,
         )
     }
 }
