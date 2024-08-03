@@ -4,6 +4,7 @@ import dev.rollczi.litecommands.argument.ArgumentKey;
 import dev.rollczi.litecommands.argument.parser.Parser;
 import dev.rollczi.litecommands.argument.parser.ParserChained;
 import dev.rollczi.litecommands.argument.resolver.ArgumentResolverBase;
+import dev.rollczi.litecommands.argument.resolver.ArgumentResolverBaseChained;
 import dev.rollczi.litecommands.argument.suggester.SuggesterChained;
 import dev.rollczi.litecommands.bind.BindChainedProvider;
 import dev.rollczi.litecommands.bind.BindProvider;
@@ -168,6 +169,10 @@ public interface LiteCommandsBuilder<SENDER, SETTINGS extends PlatformSettings, 
     <T>
     B argument(Class<T> type, ArgumentResolverBase<SENDER, T> resolver);
 
+    @ApiStatus.Experimental
+    <T>
+    B argument(Class<T> type, ArgumentResolverBaseChained<SENDER, T> resolver);
+
     /**
      * [Keyed Argument Parser and Suggester]
      * Register argument parser and suggester for a given type and key.
@@ -182,11 +187,23 @@ public interface LiteCommandsBuilder<SENDER, SETTINGS extends PlatformSettings, 
     <T>
     B argument(Class<T> type, ArgumentKey key, ArgumentResolverBase<SENDER, T> resolver);
 
+    @ApiStatus.Experimental
+    <T>
+    B argument(Class<T> type, ArgumentKey key, ArgumentResolverBaseChained<SENDER, T> resolver);
+
     <T>
     B argument(TypeRange<T> type, ArgumentResolverBase<SENDER, T> resolver);
 
+    @ApiStatus.Experimental
+    <T>
+    B argument(TypeRange<T> type, ArgumentResolverBaseChained<SENDER, T> resolver);
+
     <T>
     B argument(TypeRange<T> type, ArgumentKey key, ArgumentResolverBase<SENDER, T> resolver);
+
+    @ApiStatus.Experimental
+    <T>
+    B argument(TypeRange<T> type, ArgumentKey key, ArgumentResolverBaseChained<SENDER, T> resolver);
 
     default <T> B context(Class<T> on, ContextProvider<SENDER, T> bind) {
         return context(on, (ContextChainedProvider<SENDER, T>) bind);

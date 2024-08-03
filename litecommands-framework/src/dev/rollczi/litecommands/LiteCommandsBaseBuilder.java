@@ -7,6 +7,7 @@ import dev.rollczi.litecommands.argument.parser.ParserChained;
 import dev.rollczi.litecommands.argument.parser.ParserRegistry;
 import dev.rollczi.litecommands.argument.parser.ParserRegistryImpl;
 import dev.rollczi.litecommands.argument.resolver.ArgumentResolverBase;
+import dev.rollczi.litecommands.argument.resolver.ArgumentResolverBaseChained;
 import dev.rollczi.litecommands.argument.suggester.Suggester;
 import dev.rollczi.litecommands.argument.suggester.SuggesterChained;
 import dev.rollczi.litecommands.bind.BindChainedProvider;
@@ -328,7 +329,17 @@ public class LiteCommandsBaseBuilder<SENDER, C extends PlatformSettings, B exten
     }
 
     @Override
+    public <T> B argument(Class<T> type, ArgumentResolverBaseChained<SENDER, T> resolver) {
+        return argument(TypeRange.same(type), ArgumentKey.of(), resolver);
+    }
+
+    @Override
     public <T> B argument(Class<T> type, ArgumentKey key, ArgumentResolverBase<SENDER, T> resolver) {
+        return argument(TypeRange.same(type), key, resolver);
+    }
+
+    @Override
+    public <T> B argument(Class<T> type, ArgumentKey key, ArgumentResolverBaseChained<SENDER, T> resolver) {
         return argument(TypeRange.same(type), key, resolver);
     }
 
@@ -338,7 +349,19 @@ public class LiteCommandsBaseBuilder<SENDER, C extends PlatformSettings, B exten
     }
 
     @Override
+    public <T> B argument(TypeRange<T> type, ArgumentResolverBaseChained<SENDER, T> resolver) {
+        return argument(type, ArgumentKey.of(), resolver);
+    }
+
+    @Override
     public <T> B argument(TypeRange<T> type, ArgumentKey key, ArgumentResolverBase<SENDER, T> resolver) {
+        this.argumentParser(type, key, resolver);
+        this.argumentSuggester(type, key, resolver);
+        return this.self();
+    }
+
+    @Override
+    public <T> B argument(TypeRange<T> type, ArgumentKey key, ArgumentResolverBaseChained<SENDER, T> resolver) {
         this.argumentParser(type, key, resolver);
         this.argumentSuggester(type, key, resolver);
         return this.self();
