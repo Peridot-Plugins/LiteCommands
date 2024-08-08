@@ -1,7 +1,11 @@
 package dev.rollczi.litecommands.argument.suggester.input;
 
 import dev.rollczi.litecommands.argument.Argument;
+import dev.rollczi.litecommands.argument.parser.Parser;
+import dev.rollczi.litecommands.argument.parser.ParserChainAccessor;
 import dev.rollczi.litecommands.argument.suggester.Suggester;
+import dev.rollczi.litecommands.argument.suggester.SuggesterChainAccessor;
+import dev.rollczi.litecommands.argument.suggester.SuggesterChained;
 import dev.rollczi.litecommands.suggestion.Suggestion;
 import dev.rollczi.litecommands.suggestion.SuggestionContext;
 import dev.rollczi.litecommands.argument.parser.ParseResult;
@@ -67,18 +71,18 @@ public class SuggestionInputRawImpl implements SuggestionInput<SuggestionInputRa
         }
 
         @Override
-        public <SENDER, T> boolean isNextOptional(Invocation<SENDER> invocation, Argument<T> argument, ParserSet<SENDER, T> parserSet) {
-            return rawInputAnalyzer.isNextOptional(parserSet, invocation, argument) || argument.hasDefaultValue();
+        public <SENDER, T> boolean isNextOptional(Invocation<SENDER> invocation, Argument<T> argument, Parser<SENDER, T> parser) {
+            return rawInputAnalyzer.isNextOptional(parser, invocation, argument) || argument.hasDefaultValue();
         }
 
         @Override
         public <SENDER, T> SuggestionInputResult nextArgument(
             Invocation<SENDER> invocation,
             Argument<T> argument,
-            ParserSet<SENDER, T> parserSet,
+            Parser<SENDER, T> parser,
             Suggester<SENDER, T> suggester
         ) {
-            RawInputAnalyzer.Context<SENDER, T> context = rawInputAnalyzer.toContext(invocation, argument, parserSet);
+            RawInputAnalyzer.Context<SENDER, T> context = rawInputAnalyzer.toContext(invocation, argument, parser);
 
             if (context.isMissingFullArgument()) {
                 Suggestion current = Suggestion.of(rawInputAnalyzer.getLastArgument());

@@ -3,18 +3,22 @@ package dev.rollczi.litecommands;
 import dev.rollczi.litecommands.annotations.LiteCommandsAnnotations;
 import dev.rollczi.litecommands.argument.ArgumentKey;
 import dev.rollczi.litecommands.argument.parser.Parser;
+import dev.rollczi.litecommands.argument.parser.ParserChained;
 import dev.rollczi.litecommands.argument.parser.ParserRegistry;
 import dev.rollczi.litecommands.argument.parser.ParserRegistryImpl;
 import dev.rollczi.litecommands.argument.resolver.ArgumentResolverBase;
-import dev.rollczi.litecommands.bind.BindProvider;
+import dev.rollczi.litecommands.argument.resolver.ArgumentResolverBaseChained;
+import dev.rollczi.litecommands.argument.suggester.Suggester;
+import dev.rollczi.litecommands.argument.suggester.SuggesterChained;
+import dev.rollczi.litecommands.bind.BindChainedProvider;
 import dev.rollczi.litecommands.command.CommandMerger;
 import dev.rollczi.litecommands.configurator.LiteConfigurator;
+import dev.rollczi.litecommands.context.ContextChainedProvider;
 import dev.rollczi.litecommands.extension.LiteCommandsProviderExtension;
 import dev.rollczi.litecommands.extension.annotations.AnnotationsExtension;
 import dev.rollczi.litecommands.extension.annotations.LiteAnnotationsProcessorExtension;
 import dev.rollczi.litecommands.processor.LiteBuilderProcessor;
 import dev.rollczi.litecommands.command.executor.CommandExecuteService;
-import dev.rollczi.litecommands.context.ContextProvider;
 import dev.rollczi.litecommands.bind.BindRegistry;
 import dev.rollczi.litecommands.extension.LiteExtension;
 import dev.rollczi.litecommands.context.ContextRegistry;
@@ -41,7 +45,6 @@ import dev.rollczi.litecommands.schematic.SchematicFormat;
 import dev.rollczi.litecommands.schematic.SchematicGenerator;
 import dev.rollczi.litecommands.schematic.SimpleSchematicGenerator;
 import dev.rollczi.litecommands.scope.Scope;
-import dev.rollczi.litecommands.argument.suggester.Suggester;
 import dev.rollczi.litecommands.suggestion.SuggestionResult;
 import dev.rollczi.litecommands.suggestion.SuggestionService;
 import dev.rollczi.litecommands.argument.suggester.SuggesterRegistry;
@@ -236,13 +239,32 @@ public class LiteCommandsBaseBuilder<SENDER, C extends PlatformSettings, B exten
     }
 
     @Override
+    public <T> B argumentParser(Class<T> type, ParserChained<SENDER, T> parser) {
+        return argumentParser(TypeRange.same(type), ArgumentKey.of(), parser);
+    }
+
+    @Override
     public <PARSED>
     B argumentParser(Class<PARSED> type, ArgumentKey key, Parser<SENDER, PARSED> parser) {
         return argumentParser(TypeRange.same(type), key, parser);
     }
 
     @Override
-    public <T> B argumentParser(TypeRange<T> type, ArgumentKey key, Parser<SENDER, T> parser) {
+    public <PARSED>
+    B argumentParser(Class<PARSED> type, ArgumentKey key, ParserChained<SENDER, PARSED> parser) {
+        return argumentParser(TypeRange.same(type), key, parser);
+    }
+
+    @Override
+    public <PARSED>
+    B argumentParser(TypeRange<PARSED> type, ArgumentKey key, Parser<SENDER, PARSED> parser) {
+        this.parserRegistry.registerParser(type, key, parser);
+        return this.self();
+    }
+
+    @Override
+    public <PARSED>
+    B argumentParser(TypeRange<PARSED> type, ArgumentKey key, ParserChained<SENDER, PARSED> parser) {
         this.parserRegistry.registerParser(type, key, parser);
         return this.self();
     }
@@ -271,30 +293,63 @@ public class LiteCommandsBaseBuilder<SENDER, C extends PlatformSettings, B exten
 
     @Override
     public <T>
+    B argumentSuggester(Class<T> type, SuggesterChained<SENDER, T> suggester) {
+        return argumentSuggester(TypeRange.same(type), ArgumentKey.of(), suggester);
+    }
+
+    @Override
+    public <T>
     B argumentSuggester(Class<T> type, ArgumentKey key, Suggester<SENDER, T> suggester) {
         return argumentSuggester(TypeRange.same(type), key, suggester);
     }
 
     @Override
-    public <T> B argumentSuggester(TypeRange<T> type, ArgumentKey key, Suggester<SENDER, T> suggester) {
+    public <T>
+    B argumentSuggester(Class<T> type, ArgumentKey key, SuggesterChained<SENDER, T> suggester) {
+        return argumentSuggester(TypeRange.same(type), key, suggester);
+    }
+
+    @Override
+    public <T>
+    B argumentSuggester(TypeRange<T> type, ArgumentKey key, Suggester<SENDER, T> suggester) {
         this.suggesterRegistry.registerSuggester(type, key, suggester);
         return this.self();
     }
 
     @Override
     public <T>
-    B argument(Class<T> type, ArgumentResolverBase<SENDER, T> resolver) {
+    B argumentSuggester(TypeRange<T> type, ArgumentKey key, SuggesterChained<SENDER, T> suggester) {
+        this.suggesterRegistry.registerSuggester(type, key, suggester);
+        return this.self();
+    }
+
+    @Override
+    public <T> B argument(Class<T> type, ArgumentResolverBase<SENDER, T> resolver) {
         return argument(TypeRange.same(type), ArgumentKey.of(), resolver);
     }
 
     @Override
-    public <PARSED>
-    B argument(Class<PARSED> type, ArgumentKey key, ArgumentResolverBase<SENDER, PARSED> resolver) {
+    public <T> B argument(Class<T> type, ArgumentResolverBaseChained<SENDER, T> resolver) {
+        return argument(TypeRange.same(type), ArgumentKey.of(), resolver);
+    }
+
+    @Override
+    public <T> B argument(Class<T> type, ArgumentKey key, ArgumentResolverBase<SENDER, T> resolver) {
+        return argument(TypeRange.same(type), key, resolver);
+    }
+
+    @Override
+    public <T> B argument(Class<T> type, ArgumentKey key, ArgumentResolverBaseChained<SENDER, T> resolver) {
         return argument(TypeRange.same(type), key, resolver);
     }
 
     @Override
     public <T> B argument(TypeRange<T> type, ArgumentResolverBase<SENDER, T> resolver) {
+        return argument(type, ArgumentKey.of(), resolver);
+    }
+
+    @Override
+    public <T> B argument(TypeRange<T> type, ArgumentResolverBaseChained<SENDER, T> resolver) {
         return argument(type, ArgumentKey.of(), resolver);
     }
 
@@ -306,13 +361,20 @@ public class LiteCommandsBaseBuilder<SENDER, C extends PlatformSettings, B exten
     }
 
     @Override
-    public <T> B context(Class<T> on, ContextProvider<SENDER, T> bind) {
+    public <T> B argument(TypeRange<T> type, ArgumentKey key, ArgumentResolverBaseChained<SENDER, T> resolver) {
+        this.argumentParser(type, key, resolver);
+        this.argumentSuggester(type, key, resolver);
+        return this.self();
+    }
+
+    @Override
+    public <T> B context(Class<T> on, ContextChainedProvider<SENDER, T> bind) {
         this.contextRegistry.registerProvider(on, bind);
         return this.self();
     }
 
     @Override
-    public <T> B bind(Class<T> on, BindProvider<T> bindProvider) {
+    public <T> B bind(Class<T> on, BindChainedProvider<T> bindProvider) {
         this.bindRegistry.bindInstance(on, bindProvider);
         return this.self();
     }

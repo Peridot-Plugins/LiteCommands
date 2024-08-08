@@ -30,11 +30,11 @@ public class RawCommand {
     }
 
     public SuggestionInput<?> toSuggestionInput() {
-        return SuggestionInput.raw(args.toArray(new String[0]));
+        return SuggestionInput.raw(args);
     }
 
     public ParseableInput<?> toParseableInput() {
-        return ParseableInput.raw(args.toArray(new String[0]));
+        return ParseableInput.raw(args);
     }
 
     public List<String> getArgs() {

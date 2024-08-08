@@ -3,11 +3,14 @@ package dev.rollczi.litecommands.command.executor;
 import dev.rollczi.litecommands.argument.Argument;
 import dev.rollczi.litecommands.argument.ArgumentKey;
 import dev.rollczi.litecommands.argument.parser.ParseResult;
+import dev.rollczi.litecommands.argument.parser.Parser;
+import dev.rollczi.litecommands.argument.parser.ParserChainAccessor;
 import dev.rollczi.litecommands.argument.parser.ParserRegistry;
 import dev.rollczi.litecommands.argument.parser.ParserSet;
 import dev.rollczi.litecommands.argument.parser.input.ParseableInputMatcher;
 import dev.rollczi.litecommands.bind.BindRegistry;
 import dev.rollczi.litecommands.context.ContextRegistry;
+import dev.rollczi.litecommands.context.ContextResult;
 import dev.rollczi.litecommands.invocation.Invocation;
 import dev.rollczi.litecommands.meta.Meta;
 import dev.rollczi.litecommands.requirement.BindRequirement;
@@ -73,7 +76,9 @@ class ScheduledRequirementResolver<SENDER> {
             cachedParserSets.put(wrapFormat.getParsedType(), argument.getKey(), parserSet);
         }
 
-        return matcher.nextArgument(invocation, argument, parserSet);
+        Parser<SENDER, PARSED> parser = parserSet.getValidParser(invocation, argument);
+
+        return matcher.nextArgument(invocation, argument, parser);
     }
 
     private <PARSED> RequirementResult<PARSED> matchContext(ContextRequirement<PARSED> contextRequirement, Invocation<SENDER> invocation) {
